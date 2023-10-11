@@ -1,0 +1,32 @@
+coinImage = imread("coinImage.png"); 
+imshow(coinImage)
+coinMask = imbinarize(coinImage);
+coinMask = bwareaopen(coinMask,50)
+% Depending on the image, you might need to invert the mask. 
+% If coins are black and background is white, then use:
+% coinMask = ~coinMask;
+maskedCoinImage = coinImage;
+maskedCoinImage(repmat(~coinMask,[1 1 1])) = 0;
+coinSizes = regionprops('table', coinMask, 'Area', 'Perimeter');
+figure, imshow(coinMask), title('Coin Mask');
+figure, imshow(maskedCoinImage), title('Masked Coin Image');
+disp(coinSizes);
+% Area thresholds for classifying coins. add depednding on your coins
+dimeThreshold = 5000;
+nickelThreshold = 7000;
+quarterThreshold = 8000;
+% Grouping coins based on their areas
+nDimes = sum(coinSizes.Area < dimeThreshold);
+nNickels = sum(coinSizes.Area >= dimeThreshold & coinSizes.Area < nickelThreshold);
+nQuarters = sum(coinSizes.Area >= nickelThreshold & coinSizes.Area < quarterThreshold);
+nFiftyCents = sum(coinSizes.Area >= quarterThreshold);
+% Calculating the total value
+USD = nDimes * 0.10 + nNickels * 0.05 + nQuarters * 0.25 + nFiftyCents * 0.50;
+% Display the results
+fprintf('Number of Dimes: %d\n', nDimes);
+fprintf('Number of Nickels: %d\n', nNickels);
+fprintf('Number of Quarters: %d\n', nQuarters);
+fprintf('Number of Fifty Cents: %d\n', nFiftyCents);
+fprintf('Total Value in USD: $%.2f\n', USD);
+
+
